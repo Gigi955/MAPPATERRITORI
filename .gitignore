@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# APK files
+*.apk
+
+# Android build artifacts
+android/.gradle/
+android/app/build/
+android/build/
+android/.idea/
+android/capacitor-cordova-android-plugins/
+
+# IDE
+.idea/
+*.iml
+
+# Environment
+.env
+.env.local
