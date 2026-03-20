@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { Capacitor } from '@capacitor/core'
 import { Geolocation } from '@capacitor/geolocation'
 import { loadData, saveData, removeData } from './storage'
 import type { LivePoint, LiveSession } from '../types'
@@ -36,11 +37,14 @@ export const useLiveTrackStore = create<LiveTrackState>((set, get) => ({
   startTracking: async () => {
     set({ error: null })
     try {
-      // Richiedi permessi GPS
-      const perm = await Geolocation.requestPermissions()
-      if (perm.location !== 'granted') {
-        set({ error: 'Permesso GPS negato. Abilitalo nelle impostazioni.' })
-        return
+      // Richiedi permessi GPS solo su piattaforme native (Android/iOS)
+      // Sul web il browser gestisce i permessi automaticamente alla prima chiamata watchPosition
+      if (Capacitor.isNativePlatform()) {
+        const perm = await Geolocation.requestPermissions()
+        if (perm.location !== 'granted') {
+          set({ error: 'Permesso GPS negato. Abilitalo nelle impostazioni.' })
+          return
+        }
       }
 
       const state = get()
