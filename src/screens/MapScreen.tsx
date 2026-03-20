@@ -10,7 +10,7 @@ import { parseKmz } from '../utils/kmlParser'
 import { calcStats, formatDuration } from '../utils/calculations'
 import { pointInPolygon } from '../utils/geometry'
 import { playBoundaryAlert } from '../utils/audio'
-import type { MapLayer } from '../types'
+import type { MapLayer, LivePoint } from '../types'
 
 const LAYER_LABELS: Record<MapLayer, string> = {
   osm: 'Mappa',
@@ -26,6 +26,8 @@ export default function MapScreen() {
   const [showPanel, setShowPanel] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
+  const [headingUpMode, setHeadingUpMode] = useState(false)
+  const [heading, setHeading] = useState(0)
 
   const { currentTrack, activeLayer, loadTrack, setLayer } = useGpxStore()
   const { session, isTracking, error: gpsError, startTracking, stopTracking, clearSession, setError: setGpsError } = useLiveTrackStore()
@@ -34,6 +36,15 @@ export default function MapScreen() {
   const stats = currentTrack ? calcStats(currentTrack.points) : null
   const livePoints = session?.points ?? []
   const userPosition = livePoints.length > 0 ? livePoints[livePoints.length - 1] : null
+
+  // Calcola bearing dai punti GPS per heading-up mode
+  useEffect(() => {
+    if (livePoints.length >= 2) {
+      const p1 = livePoints[livePoints.length - 2]
+      const p2 = livePoints[livePoints.length - 1]
+      setHeading(calcBearing(p1, p2))
+    }
+  }, [livePoints])
 
   // Rilevamento uscita dal territorio: suona un doppio beep quando si esce
   useEffect(() => {
@@ -126,7 +137,7 @@ export default function MapScreen() {
 
   return (
     <div className="relative flex flex-col" style={{ height: 'calc(100svh - 56px)' }}>
-      <div className="flex-1 relative">
+      <div className="flex-1 relative overflow-hidden">
         <MapView
           track={currentTrack}
           layer={activeLayer}
@@ -134,6 +145,7 @@ export default function MapScreen() {
           userPosition={userPosition}
           isTracking={isTracking}
           kmlLayers={kmlLayers}
+          bearing={headingUpMode ? heading : 0}
         />
 
         {/* Layer switcher */}
@@ -288,6 +300,25 @@ export default function MapScreen() {
           </button>
         )}
 
+        {/* Pulsante bussola: orienta nel senso di marcia / torna a nord */}
+        <button
+          onClick={() => setHeadingUpMode((v) => !v)}
+          className={`absolute bottom-28 right-3 z-[999] rounded-full shadow-lg w-10 h-10 flex items-center justify-center text-lg transition-all active:scale-95 ${
+            headingUpMode ? 'bg-blue-600 text-white' : 'bg-white text-gray-700'
+          }`}
+          title={headingUpMode ? 'Torna a Nord' : 'Orienta nel senso di marcia'}
+        >
+          <span
+            style={{
+              display: 'inline-block',
+              transform: headingUpMode ? `rotate(${heading}deg)` : 'none',
+              transition: 'transform 0.3s ease',
+            }}
+          >
+            ⬆
+          </span>
+        </button>
+
         {/* Errori */}
         {(error || gpsError) && (
           <div
@@ -347,6 +378,15 @@ export default function MapScreen() {
       )}
     </div>
   )
+}
+
+function calcBearing(p1: LivePoint, p2: LivePoint): number {
+  const lat1 = (p1.lat * Math.PI) / 180
+  const lat2 = (p2.lat * Math.PI) / 180
+  const dLon = ((p2.lon - p1.lon) * Math.PI) / 180
+  const y = Math.sin(dLon) * Math.cos(lat2)
+  const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon)
+  return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360
 }
 
 function StatCell({ label, value }: { label: string; value: string }) {

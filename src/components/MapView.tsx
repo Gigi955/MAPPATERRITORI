@@ -47,6 +47,16 @@ function FollowPosition({ position, isTracking }: { position: LivePoint | null; 
   return null
 }
 
+function MapRotator({ bearing }: { bearing: number }) {
+  const map = useMap()
+  useEffect(() => {
+    const container = map.getContainer()
+    container.style.transform = `rotate(${-bearing}deg)`
+    container.style.transformOrigin = '50% 50%'
+  }, [map, bearing])
+  return null
+}
+
 interface Props {
   track: GpxTrack | null
   layer: MapLayer
@@ -54,9 +64,10 @@ interface Props {
   userPosition?: LivePoint | null
   isTracking?: boolean
   kmlLayers?: KmlLayer[]
+  bearing?: number
 }
 
-export default function MapView({ track, layer, livePoints = [], userPosition = null, isTracking = false, kmlLayers = [] }: Props) {
+export default function MapView({ track, layer, livePoints = [], userPosition = null, isTracking = false, kmlLayers = [], bearing = 0 }: Props) {
   const positions = track?.points.map((p) => [p.lat, p.lon] as [number, number]) ?? []
   const livePositions = livePoints.map((p) => [p.lat, p.lon] as [number, number])
 
@@ -72,7 +83,7 @@ export default function MapView({ track, layer, livePoints = [], userPosition = 
       center={[41.9, 12.5]}
       zoom={6}
       className="w-full h-full"
-      zoomControl={true}
+      zoomControl={false}
     >
       <TileLayer url={tile.url} attribution={tile.attribution} />
 
@@ -201,6 +212,7 @@ export default function MapView({ track, layer, livePoints = [], userPosition = 
 
       {bounds && <FitBounds bounds={bounds} />}
       <FollowPosition position={userPosition} isTracking={isTracking} />
+      <MapRotator bearing={bearing} />
     </MapContainer>
   )
 }
