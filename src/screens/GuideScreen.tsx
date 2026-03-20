@@ -54,6 +54,7 @@ export default function GuideScreen() {
           <ul className="mt-2 space-y-1">
             <li>Quando premi <b>✓ Fine</b>, puoi scegliere di <b>💾 Salvare</b> la traccia con un nome personalizzato oppure <b>🗑 Scartarla</b>.</li>
             <li>Ogni sessione salvata mostra il <b>nome</b>, la <b>distanza</b> percorsa in km e il numero di punti registrati.</li>
+            <li>Premi <b>▶ Continua</b> per riaprire una sessione e riprendere la registrazione del territorio in una visita successiva.</li>
             <li>Premi <b>🗑️</b> accanto a una sessione per eliminarla definitivamente.</li>
           </ul>
         </Section>

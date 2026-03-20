@@ -1,14 +1,21 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useLiveTrackStore } from '../store/liveTrackStore'
 
 export default function TracksScreen() {
+  const navigate = useNavigate()
   const [deletingId, setDeletingId] = useState<string | null>(null)
-  const { savedSessions, deleteSavedSession } = useLiveTrackStore()
+  const { savedSessions, session, deleteSavedSession, restoreSession } = useLiveTrackStore()
 
   async function handleDelete(id: string) {
     setDeletingId(id)
     await deleteSavedSession(id)
     setDeletingId(null)
+  }
+
+  async function handleRestore(id: string) {
+    await restoreSession(id)
+    navigate('/')
   }
 
   function formatDate(iso: string) {
@@ -56,6 +63,14 @@ export default function TracksScreen() {
                     {formatDate(s.savedAt)}
                   </p>
                 </div>
+                <button
+                  onClick={() => handleRestore(s.id)}
+                  disabled={!!session}
+                  className="text-green-600 px-2 py-1.5 rounded-lg bg-green-50 text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                  title={session ? 'Hai già una sessione attiva' : 'Riapri per continuare il territorio'}
+                >
+                  ▶ Continua
+                </button>
                 <button
                   onClick={() => handleDelete(s.id)}
                   disabled={deletingId === s.id}

@@ -37,6 +37,7 @@ interface LiveTrackState {
   clearSession: () => Promise<void>
   saveCurrentSession: (name: string) => Promise<void>
   deleteSavedSession: (id: string) => Promise<void>
+  restoreSession: (id: string) => Promise<void>
   setError: (err: string | null) => void
 }
 
@@ -163,6 +164,20 @@ export const useLiveTrackStore = create<LiveTrackState>((set, get) => ({
     const updated = get().savedSessions.filter((s) => s.id !== id)
     set({ savedSessions: updated })
     await saveData(SAVED_SESSIONS_KEY, updated)
+  },
+
+  restoreSession: async (id: string) => {
+    const saved = get().savedSessions.find((s) => s.id === id)
+    if (!saved) return
+    const session: LiveSession = {
+      id: Date.now().toString(),
+      startedAt: saved.savedAt,
+      points: saved.points,
+    }
+    const updatedSaved = get().savedSessions.filter((s) => s.id !== id)
+    set({ session, savedSessions: updatedSaved })
+    await saveData(LIVE_SESSION_KEY, session)
+    await saveData(SAVED_SESSIONS_KEY, updatedSaved)
   },
 
   setError: (err) => set({ error: err }),
