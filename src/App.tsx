@@ -10,12 +10,13 @@ import { useLiveTrackStore } from './store/liveTrackStore'
 
 function AppInner() {
   const { load, loaded } = useGpxStore()
-  const { loadSession } = useLiveTrackStore()
+  const { loadSession, loadSavedSessions } = useLiveTrackStore()
 
   useEffect(() => {
     load()
     loadSession()
-  }, [load, loadSession])
+    loadSavedSessions()
+  }, [load, loadSession, loadSavedSessions])
 
   if (!loaded) {
     return (

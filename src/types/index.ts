@@ -64,3 +64,11 @@ export interface LiveSession {
   startedAt: string  // ISO string
   points: LivePoint[]
 }
+
+export interface SavedLiveSession {
+  id: string
+  name: string
+  savedAt: string      // ISO
+  points: LivePoint[]
+  distanceKm: number
+}

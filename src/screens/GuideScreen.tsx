@@ -16,8 +16,9 @@ export default function GuideScreen() {
             <li><b>Mappa / Topo / Satellite</b> — usa i pulsanti in alto a destra per cambiare il tipo di mappa.</li>
             <li><b>📍 Avvia</b> — inizia la registrazione GPS della tua posizione in tempo reale.</li>
             <li><b>⏹ Ferma</b> — mette in pausa la registrazione GPS.</li>
-            <li><b>✓ Fine</b> — termina e cancella la sessione corrente quando hai completato il territorio.</li>
+            <li><b>✓ Fine</b> — apre il dialogo di fine sessione: puoi salvare la traccia con un nome o scartarla.</li>
             <li><b>🗺 Carica KMZ</b> — importa un file KMZ con i confini dei territori da visualizzare sulla mappa.</li>
+            <li><b>⬆ Bussola</b> — orienta la mappa nel senso di marcia (blu = attivo). Toccala di nuovo per tornare a nord.</li>
           </ul>
         </Section>
 
@@ -44,6 +45,16 @@ export default function GuideScreen() {
             <li>Puoi caricare <b>più file KMZ</b> contemporaneamente — ognuno ha il suo colore nella lista.</li>
             <li>Usa il <b>pallino colorato</b> in alto a sinistra per mostrare o nascondere un layer KMZ.</li>
             <li>Premi la <b>✕</b> accanto al nome per rimuovere un KMZ dalla mappa.</li>
+          </ul>
+        </Section>
+
+        {/* Sezione Tracce salvate */}
+        <Section icon="📁" title="Tracce salvate">
+          <p>La schermata <b>Tracce</b> mostra tutte le sessioni GPS che hai salvato:</p>
+          <ul className="mt-2 space-y-1">
+            <li>Quando premi <b>✓ Fine</b>, puoi scegliere di <b>💾 Salvare</b> la traccia con un nome personalizzato oppure <b>🗑 Scartarla</b>.</li>
+            <li>Ogni sessione salvata mostra il <b>nome</b>, la <b>distanza</b> percorsa in km e il numero di punti registrati.</li>
+            <li>Premi <b>🗑️</b> accanto a una sessione per eliminarla definitivamente.</li>
           </ul>
         </Section>
 

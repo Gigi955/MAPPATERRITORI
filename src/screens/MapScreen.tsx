@@ -19,11 +19,12 @@ export default function MapScreen() {
   const prevInsideRef = useRef<Set<string>>(new Set())
   const [error, setError] = useState<string | null>(null)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
+  const [sessionName, setSessionName] = useState('')
   const [headingUpMode, setHeadingUpMode] = useState(false)
   const [heading, setHeading] = useState(0)
 
   const { activeLayer, setLayer } = useGpxStore()
-  const { session, isTracking, error: gpsError, startTracking, stopTracking, clearSession, setError: setGpsError } = useLiveTrackStore()
+  const { session, isTracking, error: gpsError, startTracking, stopTracking, clearSession, saveCurrentSession, setError: setGpsError } = useLiveTrackStore()
   const { kmlLayers, addKmlLayer, removeKmlLayer, toggleKmlLayer } = useKmlStore()
 
   const livePoints = session?.points ?? []
@@ -88,7 +89,19 @@ export default function MapScreen() {
     }
   }
 
-  async function handleClearConfirmed() {
+  function openClearConfirm() {
+    const now = new Date()
+    const label = now.toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+    setSessionName(label)
+    setShowClearConfirm(true)
+  }
+
+  async function handleSaveSession() {
+    setShowClearConfirm(false)
+    await saveCurrentSession(sessionName.trim() || 'Sessione senza nome')
+  }
+
+  async function handleDiscardSession() {
     setShowClearConfirm(false)
     await clearSession()
   }
@@ -154,7 +167,7 @@ export default function MapScreen() {
               ▶ Riprendi
             </button>
             <button
-              onClick={() => setShowClearConfirm(true)}
+              onClick={openClearConfirm}
               className="text-amber-600 px-1 py-1 text-base"
             >
               🗑
@@ -170,7 +183,7 @@ export default function MapScreen() {
           </div>
         )}
 
-        {/* Barra pulsanti in basso: Avvia | Carica KMZ | Carica GPX */}
+        {/* Barra pulsanti in basso: Avvia | Carica KMZ */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[999] flex items-center gap-2">
           {/* Avvia / Ferma GPS */}
           {!session && (
@@ -246,7 +259,7 @@ export default function MapScreen() {
         {/* Bottone Fine territorio */}
         {session && !isTracking && (
           <button
-            onClick={() => setShowClearConfirm(true)}
+            onClick={openClearConfirm}
             className="absolute bottom-4 right-3 z-[999] bg-white border border-gray-300 text-gray-600 px-3 py-3 rounded-full shadow text-sm font-semibold active:scale-95 transition-transform"
           >
             ✓ Fine
@@ -256,7 +269,7 @@ export default function MapScreen() {
         {/* Pulsante bussola: orienta nel senso di marcia / torna a nord */}
         <button
           onClick={() => setHeadingUpMode((v) => !v)}
-          className={`absolute bottom-28 right-3 z-[999] rounded-full shadow-lg w-10 h-10 flex items-center justify-center text-lg transition-all active:scale-95 ${
+          className={`absolute bottom-28 right-3 z-[999] rounded-full shadow-lg w-14 h-14 flex items-center justify-center text-3xl transition-all active:scale-95 ${
             headingUpMode ? 'bg-blue-600 text-white' : 'bg-white text-gray-700'
           }`}
           title={headingUpMode ? 'Torna a Nord' : 'Orienta nel senso di marcia'}
@@ -283,15 +296,20 @@ export default function MapScreen() {
         )}
       </div>
 
-      {/* Dialog conferma cancellazione */}
+      {/* Dialog fine sessione: salva o scarta */}
       {showClearConfirm && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 px-6">
           <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
-            <h3 className="text-base font-bold text-gray-800 mb-2">Territorio completato?</h3>
-            <p className="text-sm text-gray-600 mb-5">
-              Vuoi cancellare la traccia? Il territorio sara pulito per la prossima visita.
-            </p>
-            <div className="flex gap-3">
+            <h3 className="text-base font-bold text-gray-800 mb-1">Territorio completato?</h3>
+            <p className="text-sm text-gray-500 mb-4">Vuoi salvare questa traccia prima di pulire la mappa?</p>
+            <input
+              type="text"
+              value={sessionName}
+              onChange={(e) => setSessionName(e.target.value)}
+              placeholder="Nome sessione"
+              className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm mb-4 focus:outline-none focus:border-blue-400"
+            />
+            <div className="flex gap-2">
               <button
                 onClick={() => setShowClearConfirm(false)}
                 className="flex-1 py-2.5 rounded-xl border border-gray-300 text-sm font-medium text-gray-700"
@@ -299,10 +317,16 @@ export default function MapScreen() {
                 Annulla
               </button>
               <button
-                onClick={handleClearConfirmed}
-                className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-semibold"
+                onClick={handleDiscardSession}
+                className="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-sm font-semibold"
               >
-                Cancella
+                🗑 Scarta
+              </button>
+              <button
+                onClick={handleSaveSession}
+                className="flex-1 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold"
+              >
+                💾 Salva
               </button>
             </div>
           </div>
