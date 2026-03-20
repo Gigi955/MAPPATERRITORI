@@ -1,13 +1,9 @@
 import { useRef, useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import MapView from '../components/MapView'
-import ElevationChart from '../components/ElevationChart'
 import { useGpxStore } from '../store/gpxStore'
 import { useLiveTrackStore } from '../store/liveTrackStore'
 import { useKmlStore } from '../store/kmlStore'
-import { parseGpx } from '../utils/gpxParser'
 import { parseKmz } from '../utils/kmlParser'
-import { calcStats, formatDuration } from '../utils/calculations'
 import { pointInPolygon } from '../utils/geometry'
 import { playBoundaryAlert } from '../utils/audio'
 import type { MapLayer, LivePoint } from '../types'
@@ -19,21 +15,17 @@ const LAYER_LABELS: Record<MapLayer, string> = {
 }
 
 export default function MapScreen() {
-  const navigate = useNavigate()
-  const fileRef = useRef<HTMLInputElement>(null)
   const kmlFileRef = useRef<HTMLInputElement>(null)
   const prevInsideRef = useRef<Set<string>>(new Set())
-  const [showPanel, setShowPanel] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
   const [headingUpMode, setHeadingUpMode] = useState(false)
   const [heading, setHeading] = useState(0)
 
-  const { currentTrack, activeLayer, loadTrack, setLayer } = useGpxStore()
+  const { activeLayer, setLayer } = useGpxStore()
   const { session, isTracking, error: gpsError, startTracking, stopTracking, clearSession, setError: setGpsError } = useLiveTrackStore()
   const { kmlLayers, addKmlLayer, removeKmlLayer, toggleKmlLayer } = useKmlStore()
 
-  const stats = currentTrack ? calcStats(currentTrack.points) : null
   const livePoints = session?.points ?? []
   const userPosition = livePoints.length > 0 ? livePoints[livePoints.length - 1] : null
 
@@ -73,21 +65,6 @@ export default function MapScreen() {
 
     prevInsideRef.current = nowInside
   }, [userPosition, isTracking, kmlLayers])
-
-  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setError(null)
-    try {
-      const text = await file.text()
-      const track = parseGpx(text)
-      await loadTrack(track)
-      setShowPanel(true)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Errore durante il parsing')
-    }
-    e.target.value = ''
-  }
 
   async function handleKmlFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -139,7 +116,7 @@ export default function MapScreen() {
     <div className="relative flex flex-col" style={{ height: 'calc(100svh - 56px)' }}>
       <div className="flex-1 relative overflow-hidden">
         <MapView
-          track={currentTrack}
+          track={null}
           layer={activeLayer}
           livePoints={livePoints}
           userPosition={userPosition}
@@ -228,20 +205,6 @@ export default function MapScreen() {
             onChange={handleKmlFile}
           />
 
-          {/* Carica GPX */}
-          <button
-            onClick={() => fileRef.current?.click()}
-            className="bg-blue-600 text-white px-4 py-3 rounded-full shadow-lg text-sm font-semibold flex items-center gap-2 active:scale-95 transition-transform"
-          >
-            <span>📂</span> Carica GPX
-          </button>
-          <input
-            ref={fileRef}
-            type="file"
-            accept=".gpx,application/gpx+xml"
-            className="hidden"
-            onChange={handleFile}
-          />
         </div>
 
         {/* Mini-lista KML caricati */}
@@ -290,16 +253,6 @@ export default function MapScreen() {
           </button>
         )}
 
-        {/* Toggle panel GPX */}
-        {currentTrack && (
-          <button
-            onClick={() => setShowPanel((v) => !v)}
-            className="absolute bottom-16 right-3 z-[999] bg-white rounded-full shadow p-2 text-lg"
-          >
-            {showPanel ? '▼' : '▲'}
-          </button>
-        )}
-
         {/* Pulsante bussola: orienta nel senso di marcia / torna a nord */}
         <button
           onClick={() => setHeadingUpMode((v) => !v)}
@@ -329,27 +282,6 @@ export default function MapScreen() {
           </div>
         )}
       </div>
-
-      {/* Pannello statistiche GPX */}
-      {currentTrack && showPanel && (
-        <div className="bg-white border-t border-gray-200 z-[998]">
-          {stats && (
-            <div className="grid grid-cols-4 gap-0 border-b border-gray-100">
-              <StatCell label="Distanza" value={`${stats.distance} km`} />
-              <StatCell label="Durata" value={formatDuration(stats.duration)} />
-              <StatCell label="↑ Dislivello" value={`${stats.elevGain} m`} />
-              <StatCell label="Vel. media" value={`${stats.avgSpeed} km/h`} />
-            </div>
-          )}
-          <ElevationChart points={currentTrack.points} />
-          <button
-            onClick={() => navigate('/stats')}
-            className="w-full text-center text-xs text-blue-600 py-1.5 font-medium"
-          >
-            Statistiche complete →
-          </button>
-        </div>
-      )}
 
       {/* Dialog conferma cancellazione */}
       {showClearConfirm && (
@@ -387,13 +319,4 @@ function calcBearing(p1: LivePoint, p2: LivePoint): number {
   const y = Math.sin(dLon) * Math.cos(lat2)
   const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon)
   return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360
-}
-
-function StatCell({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col items-center py-2 px-1">
-      <span className="text-[10px] text-gray-500 uppercase tracking-wide">{label}</span>
-      <span className="text-sm font-semibold text-gray-800 mt-0.5">{value}</span>
-    </div>
-  )
 }

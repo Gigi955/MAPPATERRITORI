@@ -18,8 +18,6 @@ export default function GuideScreen() {
             <li><b>⏹ Ferma</b> — mette in pausa la registrazione GPS.</li>
             <li><b>✓ Fine</b> — termina e cancella la sessione corrente quando hai completato il territorio.</li>
             <li><b>🗺 Carica KMZ</b> — importa un file KMZ con i confini dei territori da visualizzare sulla mappa.</li>
-            <li><b>📂 Carica GPX</b> — importa un file GPX per visualizzare un percorso sulla mappa.</li>
-            <li><b>▲ / ▼</b> — mostra o nasconde il pannello con le statistiche del file GPX caricato.</li>
           </ul>
         </Section>
 
@@ -46,39 +44,6 @@ export default function GuideScreen() {
             <li>Puoi caricare <b>più file KMZ</b> contemporaneamente — ognuno ha il suo colore nella lista.</li>
             <li>Usa il <b>pallino colorato</b> in alto a sinistra per mostrare o nascondere un layer KMZ.</li>
             <li>Premi la <b>✕</b> accanto al nome per rimuovere un KMZ dalla mappa.</li>
-          </ul>
-        </Section>
-
-        {/* Sezione GPX */}
-        <Section icon="📂" title="File GPX">
-          <p>I file GPX contengono percorsi e tracce preregistrate che puoi sovrapporre alla mappa:</p>
-          <ul className="mt-2 space-y-1">
-            <li>Premi <b>📂 Carica GPX</b> e seleziona un file dal tuo dispositivo.</li>
-            <li>Il percorso viene disegnato sulla mappa con statistiche (distanza, dislivello, ecc.).</li>
-            <li>Usa il pannello in basso per vedere le statistiche e il profilo altimetrico.</li>
-            <li>Premi <b>Statistiche complete →</b> per vedere tutti i dettagli del percorso.</li>
-          </ul>
-        </Section>
-
-        {/* Sezione Statistiche */}
-        <Section icon="📊" title="Statistiche">
-          <p>La schermata Statistiche mostra i dettagli del percorso GPX caricato:</p>
-          <ul className="mt-2 space-y-1">
-            <li><b>Distanza</b> totale del percorso in km.</li>
-            <li><b>Durata</b> stimata del percorso.</li>
-            <li><b>Dislivello</b> in salita e in discesa.</li>
-            <li><b>Velocità media</b> e quota minima/massima.</li>
-            <li>Grafico altimetrico interattivo del percorso.</li>
-          </ul>
-        </Section>
-
-        {/* Sezione Tracce */}
-        <Section icon="📁" title="Tracce salvate">
-          <p>La schermata Tracce raccoglie tutti i file GPX che hai importato:</p>
-          <ul className="mt-2 space-y-1">
-            <li>Visualizza l'elenco di tutte le tracce salvate sul dispositivo.</li>
-            <li>Tocca una traccia per caricarla sulla mappa.</li>
-            <li>Elimina le tracce che non ti servono più.</li>
           </ul>
         </Section>
 
