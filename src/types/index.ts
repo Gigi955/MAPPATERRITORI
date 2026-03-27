@@ -57,6 +57,7 @@ export interface LivePoint {
   lat: number
   lon: number
   timestamp: number  // Date.now()
+  accuracy?: number  // metri, da position.coords.accuracy
 }
 
 export interface LiveSession {

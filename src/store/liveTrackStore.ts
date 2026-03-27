@@ -6,7 +6,17 @@ import type { LivePoint, LiveSession, SavedLiveSession } from '../types'
 
 const LIVE_SESSION_KEY = 'livesession'
 const SAVED_SESSIONS_KEY = 'saved_live_sessions'
+const MAX_ACCURACY_M = 30   // scarta posizioni con errore GPS > 30m
+const MIN_DISTANCE_M = 5    // scarta punti a meno di 5m dall'ultimo registrato
 let pointsBuffer = 0
+
+function haversineMeters(a: LivePoint, b: LivePoint): number {
+  const R = 6371000
+  const dLat = (b.lat - a.lat) * Math.PI / 180
+  const dLon = (b.lon - a.lon) * Math.PI / 180
+  const s = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * Math.PI / 180) * Math.cos(b.lat * Math.PI / 180) * Math.sin(dLon / 2) ** 2
+  return 2 * R * Math.asin(Math.sqrt(s))
+}
 
 function calcDistanceKm(points: LivePoint[]): number {
   let d = 0
@@ -88,11 +98,19 @@ export const useLiveTrackStore = create<LiveTrackState>((set, get) => ({
         { enableHighAccuracy: true, timeout: 15000 },
         (position, err) => {
           if (err || !position) return
+          const acc = position.coords.accuracy ?? Infinity
+          if (acc > MAX_ACCURACY_M) return
+
           const point: LivePoint = {
             lat: position.coords.latitude,
             lon: position.coords.longitude,
             timestamp: position.timestamp ?? Date.now(),
+            accuracy: acc,
           }
+
+          const last = get().session?.points.at(-1)
+          if (last && haversineMeters(last, point) < MIN_DISTANCE_M) return
+
           get().addPoint(point)
         }
       )
