@@ -51,8 +51,44 @@ function MapRotator({ bearing }: { bearing: number }) {
   const map = useMap()
   useEffect(() => {
     const container = map.getContainer()
-    container.style.transform = `rotate(${-bearing}deg)`
-    container.style.transformOrigin = '50% 50%'
+    const parent = container.parentElement
+    if (!parent) return
+
+    function apply() {
+      if (!parent) return
+      const w = parent.clientWidth
+      const h = parent.clientHeight
+      if (!w || !h) return
+      if (bearing === 0) {
+        container.style.position = ''
+        container.style.top = ''
+        container.style.left = ''
+        container.style.width = '100%'
+        container.style.height = '100%'
+        container.style.transform = ''
+        container.style.transformOrigin = ''
+      } else {
+        const rad = (bearing * Math.PI) / 180
+        const c = Math.abs(Math.cos(rad))
+        const s = Math.abs(Math.sin(rad))
+        // Dimensioni minime affinché il container ruotato copra l'intero viewport
+        const newW = c * w + s * h
+        const newH = s * w + c * h
+        container.style.position = 'absolute'
+        container.style.left = `${(w - newW) / 2}px`
+        container.style.top = `${(h - newH) / 2}px`
+        container.style.width = `${newW}px`
+        container.style.height = `${newH}px`
+        container.style.transform = `rotate(${-bearing}deg)`
+        container.style.transformOrigin = '50% 50%'
+      }
+      map.invalidateSize()
+    }
+
+    apply()
+    const ro = new ResizeObserver(apply)
+    ro.observe(parent)
+    return () => ro.disconnect()
   }, [map, bearing])
   return null
 }
