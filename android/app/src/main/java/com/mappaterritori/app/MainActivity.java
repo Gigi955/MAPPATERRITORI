@@ -10,7 +10,7 @@ public class MainActivity extends BridgeActivity {
     private static final String KEY_CLEANED_VERSION = "cleaned_for_version";
     // Incrementa questo valore per forzare un reset della WebView al prossimo avvio
     // (Service Worker, cache HTTP, IndexedDB, localStorage).
-    private static final int CURRENT_CLEAN_VERSION = 1;
+    private static final int CURRENT_CLEAN_VERSION = 2;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
