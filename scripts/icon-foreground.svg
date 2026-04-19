@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Adaptive icon foreground: il contenuto deve stare nel "safe zone" (66%)
+       cioè all'incirca in un cerchio centrato di raggio 170 dal centro (256,256).
+       Il resto puo' essere tagliato da launcher con maschera tonda/quadrata/squircle. -->
+  <defs>
+    <linearGradient id="pinGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#b91c1c"/>
+    </linearGradient>
+    <filter id="pinShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="5"/>
+      <feOffset dx="0" dy="5" result="off"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.4"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Traccia GPX (accent) -->
+  <path d="M 170 340 Q 215 290 245 260 T 320 200"
+        stroke="#ffffff" stroke-width="8" fill="none" stroke-linecap="round"
+        stroke-linejoin="round" stroke-opacity="0.85"/>
+  <circle cx="170" cy="340" r="10" fill="#22c55e" stroke="#ffffff" stroke-width="3"/>
+
+  <!-- Pin -->
+  <g filter="url(#pinShadow)" transform="translate(256 240)">
+    <path d="M 0 -90
+             C 48 -90 84 -58 84 -10
+             C 84 34 48 74 0 132
+             C -48 74 -84 34 -84 -10
+             C -84 -58 -48 -90 0 -90 Z"
+          fill="url(#pinGrad)" stroke="#ffffff" stroke-width="5"/>
+    <circle cx="0" cy="-14" r="30" fill="#ffffff"/>
+    <circle cx="0" cy="-14" r="19" fill="#b91c1c"/>
+  </g>
+</svg>

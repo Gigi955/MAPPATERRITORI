@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Sfondo circolare gradiente -->
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="35%" r="75%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="55%" stop-color="#1e40af"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </radialGradient>
+    <linearGradient id="pinGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#b91c1c"/>
+    </linearGradient>
+    <filter id="pinShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6"/>
+      <feOffset dx="0" dy="6" result="off"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.45"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background tondo (per icona round / retrocompatibilità) -->
+  <rect width="512" height="512" fill="url(#bgGrad)"/>
+
+  <!-- Griglia mappa stilizzata -->
+  <g stroke="#ffffff" stroke-opacity="0.18" stroke-width="2" fill="none">
+    <path d="M 80 140 Q 200 110 320 150 T 470 170"/>
+    <path d="M 50 220 Q 180 200 300 240 T 470 260"/>
+    <path d="M 60 310 Q 200 290 320 330 T 470 350"/>
+    <path d="M 70 400 Q 200 380 320 420 T 470 440"/>
+    <path d="M 140 60 Q 160 180 135 300 T 120 460"/>
+    <path d="M 260 50 Q 280 180 255 300 T 240 460"/>
+    <path d="M 380 60 Q 400 180 375 300 T 360 460"/>
+  </g>
+
+  <!-- Traccia GPX evidenziata (bianca) -->
+  <path d="M 110 380 Q 180 320 220 280 T 310 200 Q 360 160 410 150"
+        stroke="#ffffff" stroke-width="10" fill="none" stroke-linecap="round"
+        stroke-linejoin="round" stroke-opacity="0.95"/>
+  <path d="M 110 380 Q 180 320 220 280 T 310 200 Q 360 160 410 150"
+        stroke="#60a5fa" stroke-width="4" fill="none" stroke-linecap="round"
+        stroke-linejoin="round" stroke-dasharray="14 10"/>
+
+  <!-- Punto di partenza -->
+  <circle cx="110" cy="380" r="14" fill="#22c55e" stroke="#ffffff" stroke-width="4"/>
+
+  <!-- Pin posizione (centrale, sopra la traccia) -->
+  <g filter="url(#pinShadow)" transform="translate(256 236)">
+    <!-- Corpo del pin -->
+    <path d="M 0 -110
+             C 55 -110 95 -70 95 -15
+             C 95 35 55 80 0 150
+             C -55 80 -95 35 -95 -15
+             C -95 -70 -55 -110 0 -110 Z"
+          fill="url(#pinGrad)" stroke="#ffffff" stroke-width="6"/>
+    <!-- Cerchio interno -->
+    <circle cx="0" cy="-18" r="34" fill="#ffffff"/>
+    <circle cx="0" cy="-18" r="22" fill="#b91c1c"/>
+  </g>
+</svg>
