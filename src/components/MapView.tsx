@@ -51,8 +51,23 @@ function MapRotator({ bearing }: { bearing: number }) {
   const map = useMap()
   useEffect(() => {
     const container = map.getContainer()
-    container.style.transform = `rotate(${-bearing}deg)`
     container.style.transformOrigin = '50% 50%'
+    if (bearing === 0) {
+      container.style.transform = ''
+      return
+    }
+    const w = container.clientWidth
+    const h = container.clientHeight
+    if (!w || !h) {
+      container.style.transform = `rotate(${-bearing}deg)`
+      return
+    }
+    const rad = (bearing * Math.PI) / 180
+    const c = Math.abs(Math.cos(rad))
+    const s = Math.abs(Math.sin(rad))
+    // Scala il container affinché i suoi angoli ruotati coprano l'intero viewport
+    const scale = Math.max(c + s * (h / w), c + s * (w / h))
+    container.style.transform = `scale(${scale}) rotate(${-bearing}deg)`
   }, [map, bearing])
   return null
 }
